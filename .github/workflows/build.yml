@@ -1,13 +1,11 @@
-name: Build static files
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]          # 可根据需要修改分支
-  pull_request:
-    branches: [ main ]
+    branches: [ main ]          # 触发分支，按需修改
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,17 +15,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'    # Certple 要求 20.9+
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci             # 使用 ci 确保版本锁定
+        run: npm ci
 
       - name: Build static files
-        run: npm run build      # 生成 out/ 目录
+        run: npm run build       # 生成 out/ 目录
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: certple-static
-          path: out/            # 上传构建产物，供后续下载或部署
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./out
+          publish_branch: gh-pages
+          force_orphan: true     # 可选，保持分支历史干净
