@@ -1,0 +1,33 @@
+name: Build static files
+
+on:
+  push:
+    branches: [ main ]          # 可根据需要修改分支
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'    # Certple 要求 20.9+
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci             # 使用 ci 确保版本锁定
+
+      - name: Build static files
+        run: npm run build      # 生成 out/ 目录
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: certple-static
+          path: out/            # 上传构建产物，供后续下载或部署
